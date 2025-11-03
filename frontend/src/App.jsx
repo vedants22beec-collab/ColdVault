@@ -3,7 +3,7 @@ import Terminal from "./Terminal";
 
 export default function App() {
   const termRef = useRef();
-  const wsUrl = "ws://localhost:8000/ws/run";
+  const wsUrl = "https://coldvaultbackend.onrender.com";
 
   return (
     <div

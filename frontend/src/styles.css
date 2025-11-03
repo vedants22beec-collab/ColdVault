@@ -1,0 +1,144 @@
+/* === GLOBAL === */
+body {
+  margin: 0;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #0d1117, #161b22, #0d1117);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* === CONTAINER === */
+.app-container {
+  width: 90%;
+  max-width: 900px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  backdrop-filter: blur(14px);
+  padding: 30px;
+  box-shadow: 0 0 50px rgba(0, 255, 255, 0.1);
+  text-align: center;
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+/* === HEADER === */
+.header h1 {
+  font-size: 2rem;
+  background: linear-gradient(90deg, #00f5ff, #9d4edd);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+.header p {
+  font-size: 0.95rem;
+  color: #ccc;
+  margin-bottom: 25px;
+}
+
+/* === BUTTONS === */
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.action-btn {
+  background: linear-gradient(135deg, #0072ff, #00c6ff);
+  border: none;
+  color: white;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(0, 198, 255, 0.7);
+}
+
+.clear-btn {
+  background: linear-gradient(135deg, #ff6b6b, #f06595);
+  border: none;
+  color: white;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.clear-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(255, 100, 120, 0.6);
+}
+
+/* === TERMINAL === */
+.terminal-wrapper {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 20px;
+  height: 400px;
+  overflow: hidden;
+  text-align: left;
+}
+
+.terminal-output {
+  height: 100%;
+  overflow-y: auto;
+  font-family: "Consolas", monospace;
+  font-size: 0.9rem;
+  color: #bfe7c6;
+  line-height: 1.4;
+}
+
+.terminal-output::-webkit-scrollbar {
+  width: 8px;
+}
+
+.terminal-output::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+}
+
+/* Fade-in animation for lines */
+.terminal-line {
+  animation: fadeLine 0.15s ease-in;
+}
+
+@keyframes fadeLine {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === FOOTER === */
+.footer {
+  margin-top: 25px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* === ANIMATION === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

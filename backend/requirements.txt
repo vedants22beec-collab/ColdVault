@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+pyserial
+eth-account
+eth-utils
+web3
+python-dotenv

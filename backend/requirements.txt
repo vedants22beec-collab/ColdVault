@@ -5,3 +5,4 @@ eth-account
 eth-utils
 web3
 python-dotenv
+bit

@@ -1,80 +1,169 @@
-# 🧊 ColdVault — Arduino-Based Cold Wallet
+🧊 ColdVault — Arduino-Based Ethereum Cold Wallet
 
-ColdVault is a secure, hardware-integrated Ethereum cold wallet that connects an Arduino to a web interface built with Python scripts + some frontend(used vite) + FastAPI.  
-Each function (Create Key, Get Wallet, Sign Hash, Broadcast Tx) runs through Python scripts connected to your Arduino.
+A lightweight, secure, hardware-assisted cold wallet using Arduino + Python + FastAPI + React (Vite).
 
----
+ColdVault is a secure, hardware-integrated cold wallet system that stores private keys inside an Arduino, while exposing wallet actions through a modern web interface.
+All wallet operations — Create Key, Get Wallet, Sign Hash, Broadcast Transaction — are executed through Python scripts, triggered from the UI and streamed live via WebSocket.
+
+This project is designed for education, experimentation, and air-gapped crypto key handling.
+
 ⚙️ Features
 
-- 🔐 Generate and store private keys securely on Arduino  
-- 💻 Run Python scripts directly from the website with live terminal output  
-- ⚡ Real-time script execution via WebSocket  
-- 🧩 FastAPI backend and React (Vite) frontend  
-- 🎨 Beautiful custom UI (no Tailwind, pure CSS)  
-- 🪄 One-click actions — 4 buttons trigger each backend Python script  
+🔐 Hardware-level key security
 
----
+Keys are generated and stored on the Arduino.
+
+Private keys never leave the device.
+
+💻 Live Terminal Output
+
+Python scripts run from the website and stream output in real-time via WebSocket.
+
+⚡ FastAPI Backend
+
+Handles script execution + WebSocket communication.
+
+🌐 React (Vite) Frontend
+
+Clean custom UI (pure CSS — no Tailwind).
+
+Terminal emulator built using xterm.js.
+
+🪄 One-Click Crypto Actions
+
+Create Key
+
+Get Wallet
+
+Sign Hash
+
+Broadcast Transaction
+
+🔌 Simple & Modular Code Structure
+
+Easy to expand into multi-chain wallet in the future.
+
 📁 Project Structure
-
 coldvault-web/
+│
 ├── backend/
-│ ├── app.py #FastAPI backend (handles WebSocket + script execution)
-│ ├── 1create_key.py # Creates new Ethereum wallet
-│ ├── 2get_wallet.py # Fetches wallet info
-│ ├── 3test_sign_hash.py # Signs Ethereum hashes
-│ ├── 4broadcast_tx.py # Broadcasts signed transactions
-│ └── .venv/ # Python virtual environment
+│   ├── app.py                 # FastAPI backend (WebSocket + script runner)
+│   ├── 1create_key.py         # Generates Ethereum private key + public address
+│   ├── 2get_wallet.py         # Shows wallet info + balance
+│   ├── 3test_sign_hash.py     # Signs hashes using Arduino-stored key
+│   ├── 4broadcast_tx.py       # Broadcasts signed transactions to network
+│   ├── wallet_info.json       # Stores generated wallet details
+│   └── .venv/                 # Python virtual environment
 │
 ├── frontend/
-│ ├── src/
-│ │ ├── App.jsx # UI with four buttons and live terminal
-│ │ ├── Terminal.jsx # Terminal that shows live output
-│ │ └── main.jsx
-│ └── index.html
+│   ├── src/
+│   │   ├── App.jsx            # UI + 4 crypto control buttons
+│   │   ├── Terminal.jsx       # Live terminal component (WebSocket)
+│   │   └── main.jsx
+│   ├── index.html
+│   └── styles.css
 │
 └── README.md
 
----
+🧠 How the System Works
+🔌 Execution Flow
 
-🧠 How It Works
+When you click any of the 4 buttons:
 
-Each button on the website runs a different Python script inside the backend via WebSocket:
-- 🟢 Create Key → Runs `1create_key.py`
-- 🔵 Get Wallet → Runs `2get_wallet.py`
-- 🟣 Sign Hash → Runs `3test_sign_hash.py`
-- 🟠 Broadcast Tx → Runs `4broadcast_tx.py`
+Frontend sends command → FastAPI WebSocket
 
-The backend starts a subprocess for each script and streams the live terminal output line by line to the web UI.
+FastAPI runs Python script → using a subprocess
 
----
+Python communicates with Arduino → over serial USB
 
-🧰 Setup (Local)
+Arduino performs crypto operations → keygen / sign
 
-1️⃣ Backend
+Backend streams output → line-by-line to browser
 
-```bash
+Terminal on website displays it live
+
+Actions Mapped to Scripts
+Action	Script
+🟢 Create Key	1create_key.py
+🔵 Get Wallet	2get_wallet.py
+🟣 Sign Hash	3test_sign_hash.py
+🟠 Broadcast Tx	4broadcast_tx.py
+
+This structure keeps the system clean and fully modular.
+
+🧰 Installation & Setup (Local)
+1️⃣ Backend Setup
 cd backend
 python -m venv .venv
-.\.venv\Scripts\activate     # (on Windows)
-pip install fastapi uvicorn pyserial
+
+
+Activate environment:
+
+Windows
+
+.\.venv\Scripts\activate
+
+
+Install dependencies:
+
+pip install fastapi uvicorn pyserial web3 eth-account python-dotenv
+
 
 Run the backend:
 
-# uvicorn app:app --host 127.0.0.1 --port 8000
+uvicorn app:app --host 127.0.0.1 --port 8000
 
-2️⃣ Frontend
+
+Backend WebSocket URL:
+
+ws://127.0.0.1:8000/ws/run
+
+2️⃣ Frontend Setup
 cd frontend
 npm install
 npm run dev
 
-Then open the given local URL (usually http://localhost:5173).
 
-💡 Usage
+Open browser:
 
-Connect your Arduino via USB.
-Start the backend (FastAPI).
-Start the frontend (Vite).
-Click any of the four buttons to execute its script.
-Watch live terminal output appear on the website.
+http://localhost:5173
 
-Give Credits if using this by chance @teamcoldvault
+3️⃣ Usage Flow
+
+Connect Arduino through USB
+
+Start backend (FastAPI)
+
+Start frontend (Vite)
+
+Click any button:
+
+Create Key
+
+Get Wallet
+
+Sign Hash
+
+Broadcast Tx
+
+Watch real-time terminal output on the web UI
+
+🔒 Security Notes
+
+Private keys never leave Arduino unless you explicitly print them
+
+Avoid running unstable serial monitors while using backend
+
+Always test on testnets first
+
+Use air-gapped PC for maximum security if using with real funds
+
+Do not commit your .env or private data to GitHub
+
+🤝 Credits
+
+If you use or modify this project, please credit the team:
+
+@teamcoldvault
+
+Created by: Heykaranraj

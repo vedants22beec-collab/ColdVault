@@ -1,0 +1,396 @@
+.educational-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0a0a, #1a1a2e, #16213e);
+  padding: 30px 20px;
+  color: white;
+}
+
+.educational-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 20px;
+}
+
+.educational-icon {
+  font-size: 5rem;
+  display: block;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 0 30px rgba(250, 112, 154, 0.6));
+}
+
+.educational-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin: 0 0 10px 0;
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.educational-subtitle {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+.sections-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto 40px auto;
+  padding: 0 20px;
+}
+
+.section-button {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.section-button::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--section-gradient);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.section-button:hover::before,
+.section-button.active::before {
+  opacity: 1;
+}
+
+.section-button.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.section-button-icon {
+  font-size: 2.5rem;
+}
+
+.section-button-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.content-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.content-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 40px 0;
+  text-align: center;
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hardware Section */
+.hardware-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.hardware-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+}
+
+.hardware-card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 24px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+}
+
+.hardware-icon {
+  font-size: 1.8rem;
+}
+
+.components-list,
+.instructions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.component-item,
+.instruction-item {
+  padding: 16px;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.component-item:hover,
+.instruction-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateX(10px);
+}
+
+.component-name,
+.step-number {
+  display: block;
+  font-weight: 700;
+  color: #fa709a;
+  margin-bottom: 6px;
+}
+
+.component-desc,
+.step-description {
+  display: block;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+}
+
+.diagram-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 30px;
+}
+
+.diagram-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+}
+
+.architecture-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.hardware-schematic-image {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 2px solid rgba(250, 112, 154, 0.3);
+  box-shadow: 0 10px 40px rgba(250, 112, 154, 0.2);
+  transition: all 0.3s ease;
+}
+
+.hardware-schematic-image:hover {
+  transform: scale(1.02);
+  box-shadow: 0 15px 60px rgba(250, 112, 154, 0.4);
+}
+
+.diagram-content {
+  background: #0a0a0a;
+  padding: 30px;
+  border-radius: 12px;
+  color: #00ff99;
+  font-family: "Courier New", monospace;
+  font-size: 0.9rem;
+  overflow-x: auto;
+  line-height: 1.6;
+}
+
+/* Security Section */
+.security-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.security-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 32px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.security-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(250, 112, 154, 0.5);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.security-icon {
+  font-size: 3.5rem;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.security-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: white;
+}
+
+.security-description {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.learn-more {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: #fa709a;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.security-card:hover .learn-more {
+  color: #fee140;
+  transform: translateX(5px);
+}
+
+/* Tutorials Section */
+.tutorials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.tutorial-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.tutorial-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(250, 112, 154, 0.5);
+}
+
+.tutorial-thumbnail {
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+  background: linear-gradient(135deg, rgba(250, 112, 154, 0.2), rgba(254, 225, 64, 0.2));
+}
+
+.tutorial-info {
+  padding: 24px;
+}
+
+.tutorial-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: white;
+}
+
+.tutorial-description {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.tutorial-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tutorial-duration {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.watch-button {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.watch-button:hover {
+  transform: scale(1.05);
+}
+
+.coming-soon-note {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.1rem;
+  margin-top: 20px;
+}
+
+.placeholder-content {
+  text-align: center;
+  padding: 100px 20px;
+}
+
+.placeholder-icon {
+  font-size: 5rem;
+  display: block;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.placeholder-text {
+  font-size: 1.3rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .educational-title {
+    font-size: 2.5rem;
+  }
+
+  .hardware-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sections-selector {
+    grid-template-columns: 1fr;
+  }
+}

@@ -28,13 +28,31 @@ const Terminal = forwardRef(({ wsUrl }, ref) => {
   };
 
   const connectAndSend = (cmdKey) => {
+    console.log("Connecting to WebSocket:", wsUrl);
+    console.log("Command:", cmdKey);
+    
     wsRef.current = new WebSocket(wsUrl);
+    
     wsRef.current.onopen = () => {
+      console.log("WebSocket connected, sending command:", cmdKey);
       addLine(`> Running ${cmdKey} ...`);
       wsRef.current.send(JSON.stringify({ cmd: cmdKey }));
     };
-    wsRef.current.onmessage = (ev) => addLine(ev.data);
-    wsRef.current.onclose = () => addLine("> Connection closed.");
+    
+    wsRef.current.onmessage = (ev) => {
+      console.log("WebSocket message received:", ev.data);
+      addLine(ev.data);
+    };
+    
+    wsRef.current.onerror = (err) => {
+      console.error("WebSocket error:", err);
+      addLine("> Error connecting to backend");
+    };
+    
+    wsRef.current.onclose = () => {
+      console.log("WebSocket closed");
+      addLine("> Connection closed.");
+    };
   };
 
   useEffect(() => () => wsRef.current?.close(), []);

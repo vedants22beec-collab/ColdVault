@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 """
 Create Key Script for Arduino Cold Wallet
@@ -15,7 +14,6 @@ from eth_account import Account
 def connect_to_arduino(port=None, baudrate=9600, timeout=10):
     """Connect to Arduino and wait for ready signal"""
     if port is None:
-        # Auto-detect common Arduino ports
         import serial.tools.list_ports
         ports = []
         for port_info in serial.tools.list_ports.comports():
@@ -23,85 +21,82 @@ def connect_to_arduino(port=None, baudrate=9600, timeout=10):
                 ports.append(port_info.device)
         
         if not ports:
-            print("❌ No Arduino found! Please connect Arduino and try again.")
+            print("No Arduino found! Please connect Arduino and try again.")
             return None
         
         port = ports[0]
-        print(f"🔍 Auto-detected Arduino on {port}")
+        print(f"Auto-detected Arduino on {port}")
     
     try:
         ser = serial.Serial(port, baudrate, timeout=timeout)
-        print(f"✅ Connected to Arduino on {port}")
+        print(f"Connected to Arduino on {port}")
         
-        # Wait for Arduino ready signal
-        print("⏳ Waiting for Arduino to initialize...")
+        print("Waiting for Arduino to initialize...")
         while True:
             line = ser.readline().decode().strip()
             if line == "ARDUINO_COLD_WALLET_READY":
-                print("✅ Arduino is ready!")
+                print("Arduino is ready!")
                 break
             elif line:
-                print(f"📥 Arduino: {line}")
+                print(f"Arduino: {line}")
         
-        # Check if wallet was loaded
         while True:
             line = ser.readline().decode().strip()
             if line == "WALLET_LOADED":
-                print("✅ Wallet loaded from memory!")
+                print("Wallet loaded from memory!")
                 break
             elif line == "NO_WALLET":
-                print("ℹ️  No wallet in memory")
+                print("No wallet in memory")
                 break
             elif line:
-                print(f"📥 Arduino: {line}")
+                print(f"Arduino: {line}")
         
         return ser
     except Exception as e:
-        print(f"❌ Failed to connect to Arduino: {e}")
-        print(" Make sure Arduino is connected and the correct port is selected")
+        print(f"Failed to connect to Arduino: {e}")
+        print("Make sure Arduino is connected and the correct port is selected")
         return None
 
 def create_new_key(ser):
     """Create a new private key on Arduino"""
-    print(" Creating new private key on Arduino...")
+    print("Creating new private key on Arduino...")
     ser.write(b"CREATE_KEY\n")
     
-    # Wait for key creation confirmation
     while True:
         line = ser.readline().decode().strip()
         if line == "KEY_CREATED":
-            print("✅ New private key created!")
+            print("New private key created!")
             break
         elif line.startswith("ERROR:"):
-            print(f"❌ Error: {line}")
+            print(f"Error: {line}")
             return None
         elif line:
-            print(f"📥 Arduino: {line}")
+            print(f"Arduino: {line}")
     
     return True
 
 def get_private_key(ser):
     """Get the private key from Arduino"""
-    print(" Retrieving private key from Arduino...")
+    print("Retrieving private key from Arduino...")
     
     while True:
         line = ser.readline().decode().strip()
         if line.startswith("PRIVATE_KEY:"):
-            private_key = line[12:]  # Remove "PRIVATE_KEY:" prefix
-            print(f"✅ Private key retrieved: 0x{private_key}")
+            private_key = line[12:]
+            print(f"Private key retrieved: 0x{private_key}")
             return private_key
         elif line:
-            print(f"📥 Arduino: {line}")
+            print(f"Arduino: {line}")
 
 def generate_address(private_key):
     """Generate Ethereum address from private key"""
     try:
         account = Account.from_key(f"0x{private_key}")
         address = account.address
-        print(f"✅ Ethereum address generated: {address}")
+        print(f"Ethereum address generated: {address}")
         return address
     except Exception as e:
-        print(f"❌ Failed to generate address: {e}")
+        print(f"Failed to generate address: {e}")
         return None
 
 def save_wallet_info(address, private_key):
@@ -117,50 +112,44 @@ def save_wallet_info(address, private_key):
     with open("wallet_info.json", "w") as f:
         json.dump(wallet_data, f, indent=2)
     
-    print(" Wallet information saved to 'wallet_info.json'")
+    print("Wallet information saved to 'wallet_info.json'")
 
 def main():
     print("="*60)
     print("ARDUINO COLD WALLET - CREATE NEW KEY")
     print("="*60)
     
-    # Connect to Arduino
     ser = connect_to_arduino()
     if not ser:
         return
     
     try:
-        # Create new key on Arduino
         if not create_new_key(ser):
             return
         
-        # Get private key from Arduino
         private_key = get_private_key(ser)
         if not private_key:
             return
         
-        # Generate address from private key
         address = generate_address(private_key)
         if not address:
             return
         
-        # Display wallet information
         print("\n" + "="*40)
         print("NEW WALLET CREATED")
         print("="*40)
         print(f"Address: {address}")
-        print(f" Private Key: 0x{private_key}")
+        print(f"Private Key: 0x{private_key}")
         print("="*40)
         
-        # Save wallet info
         save_wallet_info(address, private_key)
         
-        print("\n✅ New wallet created successfully!")
-        print(" You can now use this wallet for transactions")
-        print("🔒 Private key is stored securely on Arduino")
+        print("\nNew wallet created successfully!")
+        print("You can now use this wallet for transactions")
+        print("Private key is stored securely on Arduino")
         
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
     finally:
         ser.close()
         print("Disconnected from Arduino")

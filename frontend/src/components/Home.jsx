@@ -31,20 +31,12 @@ export default function Home({ onNavigate }) {
       gradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
       link: "https://github.com/Heykaranraj/coldvault-open-source-wallet",
     },
-    {
-      id: "sandbox",
-      title: "Sandbox Environment",
-      subtitle: "GitHub Codespaces",
-      description: "Test and develop in a cloud-based development environment",
-      icon: "🧪",
-      gradient: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-      link: "https://github.com/codespaces",
-    },
+
     {
       id: "education",
       title: "Educational Hub",
       subtitle: "Learn & Explore",
-      description: "Hardware schematics, tutorials, and interactive README guide",
+      description: "Hardware schematics, tutorials, and guide",
       icon: "📚",
       gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
       available: true,
@@ -57,6 +49,7 @@ export default function Home({ onNavigate }) {
       icon: "💬",
       gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
       available: true,
+      link: "https://t.me/+pchn6MzLmdxhY2Jl"
     },
   ];
 

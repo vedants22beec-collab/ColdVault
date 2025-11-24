@@ -26,86 +26,86 @@ def connect_to_arduino(port=None, baudrate=9600, timeout=10):
                 ports.append(port_info.device)
         
         if not ports:
-            print("❌ No Arduino found! Please connect Arduino and try again.")
+            print("No Arduino found! Please connect Arduino and try again.")
             return None
         
         port = ports[0]
-        print(f"🔍 Auto-detected Arduino on {port}")
+        print(f"Auto-detected Arduino on {port}")
     
     try:
         ser = serial.Serial(port, baudrate, timeout=timeout)
-        print(f"✅ Connected to Arduino on {port}")
+        print(f"Connected to Arduino on {port}")
         
         # Wait for Arduino ready signal
-        print("⏳ Waiting for Arduino to initialize...")
+        print("Waiting for Arduino to initialize...")
         while True:
             line = ser.readline().decode().strip()
             if line == "ARDUINO_COLD_WALLET_READY":
-                print("✅ Arduino is ready!")
+                print("Arduino is ready!")
                 break
             elif line:
-                print(f"📥 Arduino: {line}")
+                print(f"Arduino: {line}")
         
         # Check if wallet was loaded
         while True:
             line = ser.readline().decode().strip()
             if line == "WALLET_LOADED":
-                print("✅ Wallet loaded from memory!")
+                print("Wallet loaded from memory!")
                 break
             elif line == "NO_WALLET":
-                print("ℹ️  No wallet in memory")
+                print("No wallet in memory")
                 break
             elif line:
-                print(f"📥 Arduino: {line}")
+                print(f"Arduino: {line}")
         
         return ser
     except Exception as e:
-        print(f"❌ Failed to connect to Arduino: {e}")
+        print(f"Failed to connect to Arduino: {e}")
         print(" Make sure Arduino is connected and the correct port is selected")
         return None
 
 def check_wallet_status(ser):
     """Check if Arduino has a wallet"""
-    print("🔍 Checking wallet status...")
+    print("Checking wallet status...")
     ser.write(b"GET_STATUS\n")
     
     while True:
         line = ser.readline().decode().strip()
         if line == "STATUS:HAS_KEY":
-            print("✅ Arduino has a wallet")
+            print("Arduino has a wallet")
             return True
         elif line == "STATUS:NO_KEY":
-            print("❌ Arduino has no wallet")
+            print("Arduino has no wallet")
             return False
         elif line:
-            print(f"📥 Arduino: {line}")
+            print(f"Arduino: {line}")
 
 def get_wallet_info(ser):
     """Get wallet information from Arduino"""
-    print("📋 Retrieving wallet information...")
+    print("Retrieving wallet information...")
     ser.write(b"GET_WALLET\n")
     
     while True:
         line = ser.readline().decode().strip()
         if line.startswith("PRIVATE_KEY:"):
             private_key = line[12:]  # Remove "PRIVATE_KEY:" prefix
-            print(f"✅ Private key retrieved: 0x{private_key}")
+            print(f"Private key retrieved: 0x{private_key}")
             return private_key
         elif line.startswith("ERROR:"):
-            print(f"❌ Error: {line}")
+            print(f"Error: {line}")
             return None
         elif line:
-            print(f"📥 Arduino: {line}")
+            print(f"Arduino: {line}")
 
 def generate_address(private_key):
     """Generate Ethereum address from private key"""
     try:
         account = Account.from_key(f"0x{private_key}")
         address = account.address
-        print(f"✅ Ethereum address: {address}")
+        print(f"Ethereum address: {address}")
         return address
     except Exception as e:
-        print(f"❌ Failed to generate address: {e}")
+        print(f"Failed to generate address: {e}")
         return None
 
 def create_test_transaction(sender_address, nonce=0):
@@ -135,36 +135,36 @@ def generate_transaction_hash(transaction):
         # Generate hash using Keccak256 (Ethereum's hash function)
         tx_hash = keccak(tx_str.encode())
         
-        print(f"✅ Transaction hash generated: {tx_hash.hex()}")
+        print(f"Transaction hash generated: {tx_hash.hex()}")
         return tx_hash.hex()
         
     except Exception as e:
-        print(f"❌ Failed to generate transaction hash: {e}")
+        print(f"Failed to generate transaction hash: {e}")
         # Fallback: use SHA256
         try:
             tx_str = str(sorted(tx_for_signing.items()))
             tx_hash = hashlib.sha256(tx_str.encode()).hexdigest()
-            print(f"✅ Transaction hash generated (fallback): {tx_hash}")
+            print(f"Transaction hash generated (fallback): {tx_hash}")
             return tx_hash
         except Exception as e2:
-            print(f"❌ Fallback also failed: {e2}")
+            print(f"Fallback also failed: {e2}")
             return None
 
 def send_hash_to_arduino(ser, tx_hash):
     """Send transaction hash to Arduino for signing"""
-    print(f"📤 Sending transaction hash to Arduino: {tx_hash}")
+    print(f"Sending transaction hash to Arduino: {tx_hash}")
     
     # Send to Arduino
     ser.write(f"SIGN_HASH:{tx_hash}\n".encode())
     
     # Wait for response
-    print("⏳ Waiting for Arduino response...")
+    print("Waiting for Arduino response...")
     while True:
         response = ser.readline().decode().strip()
         if not response:
             continue
             
-        print(f"📥 Arduino: {response}")
+        print(f"Arduino: {response}")
         
         if response == "PRESS_BUTTON":
             print(" Press CONFIRM button on Arduino to sign")
@@ -172,16 +172,16 @@ def send_hash_to_arduino(ser, tx_hash):
             continue
         elif response.startswith("HASH_SIGNATURE:"):
             signature = response[15:]  # Remove "HASH_SIGNATURE:" prefix
-            print(f"✅ Hash signature received: {signature}")
+            print(f"Hash signature received: {signature}")
             return signature
         elif response == "CANCELLED":
-            print("❌ Transaction cancelled by user")
+            print("Transaction cancelled by user")
             return None
         elif response == "TIMEOUT":
-            print("❌ Signing timed out")
+            print("Signing timed out")
             return None
         elif response.startswith("ERROR:"):
-            print(f"❌ Error: {response}")
+            print(f"Error: {response}")
             return None
 
 def verify_signature_locally(transaction, signature, private_key):
@@ -189,14 +189,14 @@ def verify_signature_locally(transaction, signature, private_key):
     try:
         # Check if the signature is valid format
         if len(signature) == 128:  # 64 bytes = 128 hex chars
-            print("✅ Signature format is valid")
+            print("Signature format is valid")
             return True
         else:
-            print(f"❌ Invalid signature length: {len(signature)}")
+            print(f"Invalid signature length: {len(signature)}")
             return False
             
     except Exception as e:
-        print(f"❌ Signature verification failed: {e}")
+        print(f"Signature verification failed: {e}")
         return False
 
 def save_transaction_data(transaction, signature, private_key, address, tx_hash):
@@ -230,7 +230,7 @@ def main():
     try:
         # Check if Arduino has a wallet
         if not check_wallet_status(ser):
-            print("\n❌ No wallet found on Arduino!")
+            print("\nNo wallet found on Arduino!")
             print(" Run 'python 1create_key.py' to create a new wallet")
             return
         
@@ -282,7 +282,7 @@ def main():
             
             # Verify signature locally
             if verify_signature_locally(transaction, signature, private_key):
-                print("✅ Transaction hash signed successfully!")
+                print("Transaction hash signed successfully!")
                 print(f" Signature: {signature}")
                 
                 # Save transaction data for later broadcasting
@@ -291,17 +291,17 @@ def main():
                 print("\n" + "="*40)
                 print("NEXT STEPS")
                 print("="*40)
-                print("1. ✅ Transaction hash signed by Arduino")
+                print("1. Transaction hash signed by Arduino")
                 print("2.  Data saved to 'pending_transaction.json'")
                 print("3.  Run 'python 4broadcast_tx.py' to broadcast to blockchain")
                 
             else:
-                print("❌ Signature verification failed")
+                print("Signature verification failed")
         else:
-            print("❌ Transaction signing failed or was cancelled")
+            print("Transaction signing failed or was cancelled")
         
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
     finally:
         ser.close()
         print(" Disconnected from Arduino")

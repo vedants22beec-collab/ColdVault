@@ -8,19 +8,15 @@ import json
 import serial
 import time
 from pathlib import Path
-
 from bit import PrivateKeyTestnet
 
 BASE_DIR = Path(__file__).resolve().parent
 WALLET_FILE = BASE_DIR / "btc_wallet_info.json"
 
-
 def connect_to_arduino(port=None, baudrate=9600, timeout=10):
     """Connect to Arduino and wait for ready signal"""
     if port is None:
-        # Auto-detect common Arduino ports
         import serial.tools.list_ports
-
         ports = []
         for port_info in serial.tools.list_ports.comports():
             if (
@@ -31,64 +27,56 @@ def connect_to_arduino(port=None, baudrate=9600, timeout=10):
                 ports.append(port_info.device)
 
         if not ports:
-            print("❌ No Arduino found! Please connect Arduino and try again.")
+            print("No Arduino found! Please connect Arduino and try again.")
             return None
 
         port = ports[0]
-        print(f"🔍 Auto-detected Arduino on {port}")
+        print(f"Auto-detected Arduino on {port}")
 
     try:
         ser = serial.Serial(port, baudrate, timeout=timeout)
-        print(f"✅ Connected to Arduino on {port}")
-
-        # Wait for Arduino ready signal
-        print("⏳ Waiting for Arduino to initialize...")
+        print(f"Connected to Arduino on {port}")
+        print("Waiting for Arduino to initialize...")
         while True:
             line = ser.readline().decode().strip()
             if line == "ARDUINO_COLD_WALLET_READY":
-                print("✅ Arduino is ready!")
+                print("Arduino is ready!")
                 break
             elif line:
-                print(f"📥 Arduino: {line}")
+                print(f"Arduino: {line}")
 
-        # Check if wallet was loaded
         while True:
             line = ser.readline().decode().strip()
             if line == "WALLET_LOADED":
-                print("✅ Wallet loaded from memory!")
+                print("Wallet loaded from memory!")
                 break
             elif line == "NO_WALLET":
-                print("ℹ️  No wallet in memory")
+                print("No wallet in memory")
                 break
             elif line:
-                print(f"📥 Arduino: {line}")
+                print(f"Arduino: {line}")
 
         return ser
     except Exception as e:
-        print(f"❌ Failed to connect to Arduino: {e}")
-        print(" Make sure Arduino is connected and the correct port is selected")
+        print(f"Failed to connect to Arduino: {e}")
+        print("Make sure Arduino is connected and the correct port is selected")
         return None
-
 
 def create_new_key(ser):
     """Create a new private key on Arduino"""
-    print(" Creating new private key on Arduino...")
+    print("Creating new private key on Arduino...")
     ser.write(b"CREATE_KEY\n")
-
-    # Wait for key creation confirmation
     while True:
         line = ser.readline().decode().strip()
         if line == "KEY_CREATED":
-            print("✅ New private key created!")
+            print("New private key created!")
             break
         elif line.startswith("ERROR:"):
-            print(f"❌ Error: {line}")
+            print(f"Error: {line}")
             return None
         elif line:
-            print(f"📥 Arduino: {line}")
-
+            print(f"Arduino: {line}")
     return True
-
 
 def normalize_private_key(private_key: str) -> str:
     """Normalize private key string from Arduino output"""
@@ -97,23 +85,20 @@ def normalize_private_key(private_key: str) -> str:
         key = key[2:]
     return key.lower()
 
-
 def get_private_key(ser):
     """Get the private key from Arduino"""
-    print(" Retrieving private key from Arduino...")
-
+    print("Retrieving private key from Arduino...")
     while True:
         line = ser.readline().decode().strip()
         if line.startswith("PRIVATE_KEY:"):
             private_key = normalize_private_key(line[12:])
-            print(f"✅ Private key retrieved: {private_key}")
+            print(f"Private key retrieved: {private_key}")
             return private_key
         elif line.startswith("ERROR:"):
-            print(f"❌ Error: {line}")
+            print(f"Error: {line}")
             return None
         elif line:
-            print(f"📥 Arduino: {line}")
-
+            print(f"Arduino: {line}")
 
 def generate_wallet(private_key: str):
     """Generate Bitcoin testnet address and WIF from private key"""
@@ -121,14 +106,12 @@ def generate_wallet(private_key: str):
         key = PrivateKeyTestnet.from_hex(private_key)
         address = key.address
         wif = key.to_wif()
-
-        print(f"✅ Bitcoin testnet address generated: {address}")
-        print(f"✅ WIF generated: {wif}")
+        print(f"Bitcoin testnet address generated: {address}")
+        print(f"WIF generated: {wif}")
         return address, wif
     except Exception as e:
-        print(f"❌ Failed to generate Bitcoin wallet: {e}")
+        print(f"Failed to generate Bitcoin wallet: {e}")
         return None, None
-
 
 def save_wallet_info(address: str, private_key: str, wif: str):
     """Save wallet information to file"""
@@ -140,10 +123,8 @@ def save_wallet_info(address: str, private_key: str, wif: str):
         "network": "bitcoin-testnet",
         "note": "Generated by Arduino Cold Wallet",
     }
-
     WALLET_FILE.write_text(json.dumps(wallet_data, indent=2))
-    print(f" Wallet information saved to '{WALLET_FILE.name}'")
-
+    print(f"Wallet information saved to '{WALLET_FILE.name}'")
 
 def main():
     print("=" * 60)
@@ -169,24 +150,22 @@ def main():
         print("\n" + "=" * 40)
         print("NEW BITCOIN TESTNET WALLET")
         print("=" * 40)
-        print(f" Address: {address}")
-        print(f" Private Key (hex): {private_key}")
-        print(f" Private Key (WIF): {wif}")
+        print(f"Address: {address}")
+        print(f"Private Key (hex): {private_key}")
+        print(f"Private Key (WIF): {wif}")
         print("=" * 40)
 
         save_wallet_info(address, private_key, wif)
 
-        print("\n✅ New Bitcoin testnet wallet created successfully!")
-        print("🔒 Private key is stored securely on Arduino")
-        print("📄 Backup saved locally for recovery/testing")
+        print("\nNew Bitcoin testnet wallet created successfully!")
+        print("Private key is stored securely on Arduino")
+        print("Backup saved locally for recovery/testing")
 
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
     finally:
         ser.close()
         print("Disconnected from Arduino")
 
-
 if __name__ == "__main__":
     main()
-

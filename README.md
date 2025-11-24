@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 🧊 ColdVault — Arduino-Based Cold Wallet
 
 ColdVault is a secure, hardware-integrated Ethereum cold wallet that connects an Arduino to a web interface powered by Python scripts, FastAPI, and a Vite-based React frontend.
@@ -93,3 +94,6 @@ If you use or modify this project, kindly credit the creators:
 @teamcoldvault
 
 
+=======
+# ColdVault
+>>>>>>> 35c5a75e7039741ea7750685f4eff14fed377313

@@ -1,4 +1,4 @@
-ColdVault is a secure, hardware-integrated cold wallet that pairs an Arduino device with a web interface. It provides air-gapped key management and transaction signing for Ethereum (EVM) and Bitcoin (testnet) workflows. The system includes a backend powered by Python scripts and FastAPI, with a modern frontend using Vite and React.
+ColdVault is a secure, hardware-integrated cold wallet. It provides air-gapped key management and transaction signing for Ethereum (EVM) and Bitcoin (testnet) workflows. The system includes a backend powered by Python scripts and FastAPI, with a modern frontend using Vite and React.
 
 **Warning:** ColdVault is experimental. Never use real funds unless you fully understand the risks. Always test on Sepolia (Ethereum) and Bitcoin testnets first.
 
@@ -68,6 +68,7 @@ coldvault-web/
 - Node.js 18 or higher with npm or yarn
 - Arduino Uno or Mega with USB cable
 - Git (optional, for cloning the repository)
+- Raspberrypi with latest os updates
 
 ---
 
@@ -113,7 +114,6 @@ pip install fastapi uvicorn pyserial eth-account eth-utils web3 python-dotenv bi
 
 ```
 
-ETH_RPC_URL=<your_eth_rpc_url>
 ARDUINO_PORT=<your_arduino_port>
 ARDUINO_BAUD_RATE=9600
 BTC_NETWORK=testnet
@@ -264,5 +264,6 @@ git commit -m "feat: description"
 - Contributors: Community developers and testers
 
 Please credit the creators if you use or modify this project.
+
 
 

@@ -1,0 +1,232 @@
+#include <uECC.h>
+#include <Crypto.h>
+#include <SHA3.h>
+#include <EEPROM.h>
+
+    #define BUTTON_CONFIRM 2
+    #define BUTTON_CANCEL 3
+
+uint8_t privateKey[32];
+uint8_t publicKey[64];
+char walletAddress[42]; // Ethereum address (0x + 40 hex chars)
+bool hasKey = false;
+
+// EEPROM addresses
+#define EEPROM_HAS_KEY_FLAG 0
+#define EEPROM_PRIVATE_KEY_START 1
+
+void setup() {
+    Serial.begin(9600);
+    pinMode(BUTTON_CONFIRM, INPUT_PULLUP);
+    pinMode(BUTTON_CANCEL, INPUT_PULLUP);
+
+    // Seed random number generator with analog noise
+    randomSeed(analogRead(0) + analogRead(1) + analogRead(2) + analogRead(3) + analogRead(4) + analogRead(5));
+   
+    // Check if we have a saved key in EEPROM
+    hasKey = EEPROM.read(EEPROM_HAS_KEY_FLAG) == 1;
+   
+    if (hasKey) {
+        // Load private key from EEPROM
+        for (int i = 0; i < 32; i++) {
+            privateKey[i] = EEPROM.read(EEPROM_PRIVATE_KEY_START + i);
+        }
+        // Generate public key from loaded private key
+        uECC_compute_public_key(privateKey, publicKey, uECC_secp256k1());
+        Serial.println("ARDUINO_COLD_WALLET_READY");
+        Serial.println("WALLET_LOADED");
+    } else {
+        Serial.println("ARDUINO_COLD_WALLET_READY");
+        Serial.println("NO_WALLET");
+    }
+}
+
+void savePrivateKeyToEEPROM() {
+    // Save private key to EEPROM
+    EEPROM.write(EEPROM_HAS_KEY_FLAG, 1);
+    for (int i = 0; i < 32; i++) {
+        EEPROM.write(EEPROM_PRIVATE_KEY_START + i, privateKey[i]);
+    }
+}
+
+void clearPrivateKeyFromEEPROM() {
+    // Clear private key from EEPROM
+    EEPROM.write(EEPROM_HAS_KEY_FLAG, 0);
+    for (int i = 0; i < 32; i++) {
+        EEPROM.write(EEPROM_PRIVATE_KEY_START + i, 0);
+    }
+}
+
+void sendPrivateKey() {
+    // Send private key for address generation (SECURITY WARNING: Only for testing!)
+    Serial.print("PRIVATE_KEY:");
+    for (int i = 0; i < 32; i++) {
+        if (privateKey[i] < 16) {
+            Serial.print("0"); // Add leading zero for single-digit hex
+        }
+        Serial.print(privateKey[i], HEX);
+    }
+    Serial.println();
+}
+
+void waitForButtonPress(String txData) {
+    unsigned long startTime = millis();
+    const unsigned long timeout = 30000; // 30 second timeout
+   
+    while (millis() - startTime < timeout) {
+        if (digitalRead(BUTTON_CONFIRM) == LOW) {
+            delay(50); // Debounce
+            signTransaction(txData);
+            return;
+        } else if (digitalRead(BUTTON_CANCEL) == LOW) {
+            delay(50); // Debounce
+            Serial.println("CANCELLED");
+            return;
+        }
+        delay(10);
+    }
+   
+    Serial.println("TIMEOUT");
+}
+
+void waitForHashButtonPress(String hashHex) {
+    unsigned long startTime = millis();
+    const unsigned long timeout = 30000; // 30 second timeout
+   
+    while (millis() - startTime < timeout) {
+        if (digitalRead(BUTTON_CONFIRM) == LOW) {
+            delay(50); // Debounce
+            signTransactionHash(hashHex);
+            return;
+        } else if (digitalRead(BUTTON_CANCEL) == LOW) {
+            delay(50); // Debounce
+            Serial.println("CANCELLED");
+            return;
+        }
+        delay(10);
+    }
+   
+    Serial.println("TIMEOUT");
+}
+
+void loop() {
+    if (Serial.available()) {
+        String command = Serial.readStringUntil('\n');
+        command.trim();
+       
+        if (command == "CREATE_KEY") {
+            generateKeyPair();
+            hasKey = true;
+            savePrivateKeyToEEPROM();
+            Serial.println("KEY_CREATED");
+            sendPrivateKey();
+        } else if (command == "GET_WALLET") {
+            if (hasKey) {
+                sendPrivateKey();
+            } else {
+                Serial.println("ERROR:NO_KEY");
+            }
+        } else if (command.startsWith("SIGN_TX:")) {
+            if (hasKey) {
+                String txData = command.substring(8); // Remove "SIGN_TX:" prefix
+                Serial.println("PRESS_BUTTON");
+                waitForButtonPress(txData);
+            } else {
+                Serial.println("ERROR:NO_KEY");
+            }
+        } else if (command.startsWith("SIGN_HASH:")) {
+            if (hasKey) {
+                String hashHex = command.substring(10); // Remove "SIGN_HASH:" prefix
+                Serial.println("PRESS_BUTTON");
+                waitForHashButtonPress(hashHex);
+            } else {
+                Serial.println("ERROR:NO_KEY");
+            }
+        } else if (command == "GET_STATUS") {
+            if (hasKey) {
+                Serial.println("STATUS:HAS_KEY");
+            } else {
+                Serial.println("STATUS:NO_KEY");
+            }
+        } else if (command == "CLEAR_WALLET") {
+            hasKey = false;
+            clearPrivateKeyFromEEPROM();
+            Serial.println("WALLET_CLEARED");
+        }
+    }
+}
+
+    void generateKeyPair() {
+        uECC_set_rng(&randomNumberGenerator);
+        uECC_make_key(publicKey, privateKey, uECC_secp256k1());
+
+        // Convert public key to Ethereum address using Keccak256
+        uint8_t hash[32];
+        SHA3_256 sha3;
+       
+        // Hash the public key (64 bytes) with Keccak256
+        sha3.update(publicKey, 64);
+        sha3.finalize(hash, 32);
+
+        // Take last 20 bytes of hash for address
+        walletAddress[0] = '0';
+        walletAddress[1] = 'x';
+        for (int i = 0; i < 20; i++) {
+            sprintf(&walletAddress[2 + i*2], "%02x", hash[i + 12]);
+        }
+    }
+
+    int randomNumberGenerator(uint8_t *dest, unsigned size) {
+        // Improved RNG using multiple entropy sources
+        for (unsigned i = 0; i < size; i++) {
+            // Mix multiple entropy sources for better randomness
+            uint32_t entropy = random(256);
+            entropy ^= analogRead(0) & 0xFF;
+            entropy ^= analogRead(1) & 0xFF;
+            entropy ^= micros() & 0xFF;
+            dest[i] = entropy & 0xFF;
+           
+            // Add small delay to increase entropy
+            delayMicroseconds(10);
+        }
+        return 1;
+    }
+
+void signTransaction(String txData) {
+    // Sign transaction
+    uint8_t signature[64];
+    uECC_sign(privateKey, (uint8_t*)txData.c_str(), txData.length(), signature, uECC_secp256k1());
+
+    // Send signature to Raspberry Pi
+    Serial.print("SIGNATURE:");
+    for (int i = 0; i < 64; i++) {
+        if (signature[i] < 16) {
+            Serial.print("0"); // Add leading zero for single-digit hex
+        }
+        Serial.print(signature[i], HEX);
+    }
+    Serial.println();
+}
+
+void signTransactionHash(String hashHex) {
+    // Convert hex string to bytes
+    uint8_t hash[32];
+    for (int i = 0; i < 32; i++) {
+        String hexByte = hashHex.substring(i * 2, i * 2 + 2);
+        hash[i] = strtol(hexByte.c_str(), NULL, 16);
+    }
+   
+    // Sign the hash
+    uint8_t signature[64];
+    uECC_sign(privateKey, hash, 32, signature, uECC_secp256k1());
+
+    // Send signature to Python
+    Serial.print("HASH_SIGNATURE:");
+    for (int i = 0; i < 64; i++) {
+        if (signature[i] < 16) {
+            Serial.print("0"); // Add leading zero for single-digit hex
+        }
+        Serial.print(signature[i], HEX);
+    }
+    Serial.println();
+}
